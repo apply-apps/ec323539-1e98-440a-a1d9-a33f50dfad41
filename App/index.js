@@ -1,53 +1,103 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
 
-const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaView, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-  useEffect(() => {
-    if (isPaused) return;
+const tales = [
+    { id: '1', title: 'Cinderella', content: 'Once upon a time...' },
+    { id: '2', title: 'Snow White', content: 'Once upon a time...' },
+    { id: '3', title: 'Sleeping Beauty', content: 'Once upon a time...' },
+];
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
+const HomeScreen = ({ navigation }) => {
+    const renderItem = ({ item }) => (
+        <TouchableOpacity
+            style={styles.item}
+            onPress={() => navigation.navigate('Tale', { tale: item })}
+        >
+            <Text style={styles.title}>{item.title}</Text>
+        </TouchableOpacity>
+    );
 
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
-  );
+    return (
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.header}>Fairy Tales</Text>
+            <FlatList
+                data={tales}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+            />
+        </SafeAreaView>
+    );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
-  },
-  text: {
-    color: 'white',
-    fontSize: 24,
-    fontFamily: 'monospace',
-  },
-});
+const TaleScreen = ({ route }) => {
+    const { tale } = route.params;
 
-export default App;
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.box}>
+                <Text style={styles.title}>{tale.title}</Text>
+                <Text style={styles.content}>{tale.content}</Text>
+            </View>
+        </SafeAreaView>
+    );
+};
+
+const Stack = createStackNavigator();
+
+export default function App() {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Tale" component={TaleScreen} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 20,
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    item: {
+        backgroundColor: '#f9c2ff',
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    title: {
+        fontSize: 18,
+    },
+    box: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    content: {
+        fontSize: 16,
+        lineHeight: 24,
+    },
+});
